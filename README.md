@@ -200,6 +200,3 @@ The model was trained on the Open University Learning Analytics Dataset (OULAD).
 
 ---
 
-## License
-
-This project is submitted for hackathon evaluation. All rights reserved.
