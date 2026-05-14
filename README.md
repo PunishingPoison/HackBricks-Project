@@ -1,5 +1,8 @@
 # Student Dropout Predictor
 
+<img width="1899" height="876" alt="image" src="https://github.com/user-attachments/assets/6f19da89-f04c-4923-b60b-2d84cadab59f" />
+
+
 An AI-powered early warning system that predicts student dropout risk using a Random Forest classifier (88.43% accuracy) with SHAP explainability.
 
 **Two apps in this repo:**
