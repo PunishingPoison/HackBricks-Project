@@ -44,13 +44,13 @@ st.markdown("""
 def load_resources():
     """Load model, scaler, feature names, and initialize SHAP explainer"""
     try:
-        base_path = '/Workspace/Users/vcmohitrao@gmail.com/Drafts/HackBricks-Project/'
+        base_path = os.path.dirname(os.path.abspath(__file__))
         
-        with open(base_path + 'random_forest_dropout_model.pkl', 'rb') as f:
+        with open(os.path.join(base_path, 'random_forest_dropout_model.pkl'), 'rb') as f:
             model = pickle.load(f)
-        with open(base_path + 'scaler.pkl', 'rb') as f:
+        with open(os.path.join(base_path, 'scaler.pkl'), 'rb') as f:
             scaler = pickle.load(f)
-        with open(base_path + 'feature_names.pkl', 'rb') as f:
+        with open(os.path.join(base_path, 'feature_names.pkl'), 'rb') as f:
             feature_names = pickle.load(f)
         
         explainer = shap.TreeExplainer(model)

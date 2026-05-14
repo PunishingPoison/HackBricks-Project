@@ -1,173 +1,219 @@
 # Student Dropout Predictor
 
-An AI-powered early warning system that predicts student dropout risk using a Random Forest classifier. The model achieves 88.43% accuracy with SHAP explainability, providing actionable insights into the factors driving each prediction.
+An AI-powered early warning system that predicts student dropout risk using a Random Forest classifier (88.43% accuracy) with SHAP explainability.
 
-Built with a Next.js 15 frontend and a Python FastAPI backend. The machine learning model was trained on 3,318 student records from the Open University Learning Analytics Dataset (OULAD).
-
----
-
-## Features
-
-- **Single Risk Assessment** — Enter student data through an intuitive smart form with auto-calculated trends, or use manual mode for direct feature entry. Get instant predictions with SHAP explanations.
-- **Batch Processing** — Upload a CSV file or paste data to analyze multiple students at once, with cohort-level statistics and risk distribution visualizations.
-- **Analytics Dashboard** — View model performance metrics, feature importance rankings, and model configuration details.
-- **SHAP Explainability** — Understand which factors contribute to each prediction with interactive waterfall charts and top-factors breakdowns.
-- **Probability Gauge** — Visual risk indicator with color-coded thresholds (green = low, amber = moderate, red = high).
+**Two apps in this repo:**
+1. **Web App (Recommended)** — Next.js 15 frontend + Python FastAPI backend
+2. **Standalone App** — Single-file Streamlit app (`dropout_prediction_app.py`)
 
 ---
 
-## Tech Stack
+## Prerequisites (MANDATORY — Do NOT skip)
 
-| Layer | Technology |
+### 1. Git LFS (Required for .pkl files)
+
+The trained model (`random_forest_dropout_model.pkl` ~10 MB) and other `.pkl` files are stored with Git LFS. If you don't install Git LFS, these files will download as corrupt pointer files instead of the actual model data.
+
+**Install Git LFS:**
+
+| OS | Command |
 |---|---|
-| Frontend | Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS v4 |
-| Backend | Python 3.12+, FastAPI, Uvicorn |
-| Machine Learning | scikit-learn 1.6.1 (Random Forest), SHAP, pandas, numpy |
-| Charts | Recharts |
-| Icons | Lucide React |
+| **Windows** | Download from https://git-lfs.com — or `winget install GitHub.GitLFS` |
+| **macOS** | `brew install git-lfs` |
+| **Linux (Ubuntu/Debian)** | `sudo apt install git-lfs` |
+| **Linux (Fedora)** | `sudo dnf install git-lfs` |
+| **Any OS (after Git is installed)** | `git lfs install` |
 
----
-
-## Prerequisites
-
-- **Node.js** >= 18.17.0
-- **Python** >= 3.12
-- **npm** or **yarn**
-- **Git** (optional, for cloning)
-
----
-
-## Local Setup
-
-### 1. Clone the repository
-
+**Verify installation:**
+```bash
+git lfs version
+# Should output something like: git-lfs/3.5.1 (GitHub; ...)
 ```
+
+### 2. Core Software
+
+| Software | Minimum Version | Check Command |
+|---|---|---|
+| **Git** | >= 2.20 | `git --version` |
+| **Node.js** | >= 18.17.0 | `node --version` |
+| **npm** | >= 9.0 | `npm --version` |
+| **Python** | >= 3.12 | `python --version` |
+
+*If `python` doesn't work on Windows, try `py --version` or `python3 --version`.*
+
+---
+
+## Setup Instructions
+
+### Step 1: Clone the repository
+
+```bash
 git clone https://github.com/PunishingPoison/dummyProject.git
 cd HackBricks-Project-master
 ```
 
-### 2. Backend setup
+### Step 2: Pull LFS files (CRITICAL)
 
+After cloning, you **must** pull the LFS-tracked `.pkl` files explicitly:
+
+```bash
+git lfs pull
 ```
+
+**Verify the .pkl files are not corrupt:**
+
+```bash
+# Check file sizes — should be several MB, NOT 100-something bytes
+ls -lh *.pkl
+ls -lh backend/*.pkl
+```
+
+Expected sizes:
+- `random_forest_dropout_model.pkl` — **~10 MB** (if smaller than 1 KB, it's a corrupt pointer)
+- `scaler.pkl` — **~1 KB** (this one is naturally small, OK)
+- `feature_names.pkl` — **< 1 KB** (naturally small, OK)
+
+> **If files are corrupt (tiny sizes):** Run `git lfs pull` again. If that fails, run `git lfs install` first, then `git lfs pull`. As a last resort, delete the repo and re-clone.
+
+---
+
+## Option A: Run the Web App (Next.js + FastAPI Backend)
+
+### Step 3A: Backend setup
+
+```bash
 cd backend
+python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 cd ..
 ```
 
-This installs FastAPI, uvicorn, scikit-learn, SHAP, pandas, numpy, and other dependencies.
+**Installed backend packages (exact tested versions):**
 
-### 3. Frontend setup
+| Package | Version |
+|---|---|
+| fastapi | 0.115.6 |
+| uvicorn | 0.34.0 |
+| pandas | 2.2.3 |
+| numpy | 2.2.1 |
+| scikit-learn | 1.6.1 |
+| shap | 0.46.0 |
+| python-multipart | 0.0.19 |
+| pydantic | 2.10.4 |
 
-```
+### Step 4A: Frontend setup
+
+```bash
 npm install
 ```
 
-### 4. Start the application
+### Step 5A: Start the application
 
-Run both the backend and frontend simultaneously:
-
-```
+```bash
 npm run dev:all
 ```
 
 This starts:
-- Backend at `http://localhost:8000` (FastAPI + Uvicorn)
-- Frontend at `http://localhost:4000` (Next.js dev server)
+- **Backend** at `http://localhost:8000` (FastAPI + Uvicorn)
+- **Frontend** at `http://localhost:4000` (Next.js dev server)
 
-Alternatively, start them in separate terminals:
-
-```
-# Terminal 1 - Backend
+**Alternative — separate terminals:**
+```bash
+# Terminal 1 — Backend
 cd backend && python -m uvicorn main:app --reload --port 8000
 
-# Terminal 2 - Frontend
+# Terminal 2 — Frontend
 npm run dev -- --port 4000
 ```
 
-### 5. Open the application
+### Step 6A: Open in browser
 
-Visit **http://localhost:4000** in your browser.
+Visit **http://localhost:4000**
 
 ---
 
-## Usage
+## Option B: Run the Standalone Streamlit App
 
-### Single Prediction
+This is a simpler single-file app that does NOT require Node.js.
 
-1. Navigate to the **Predict** page.
-2. Choose **Smart Input** mode (recommended) or **Manual Input**.
-3. Fill in the form across four sections: Academic, Demographics, Financial, and Risk Factors.
-4. Click **Generate Prediction**.
-5. View the result with:
-   - Risk card showing the predicted outcome and confidence.
-   - Probability gauge for visual risk assessment.
-   - SHAP waterfall chart showing feature contributions.
-   - Top factors breakdown with directional impact.
+### Step 3B: Install Python packages
 
-### Batch Processing
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
 
-1. Navigate to the **Batch** page.
-2. Upload a CSV file or paste comma-separated data.
-3. Each row should contain 15 feature values in the correct order.
-4. Click **Run Predictions**.
-5. View cohort summaries, distribution charts, and export results by risk level.
+### Step 4B: Run Streamlit
 
-### Analytics
+```bash
+streamlit run dropout_prediction_app.py
+```
 
-1. Navigate to the **Analytics** page.
-2. View model metrics, feature importance bar chart, and configuration details.
-3. Explore the engineered features and preprocessing steps.
+The app opens at `http://localhost:8501`.
+
+### (Optional) Enable AI Explanations via NVIDIA NIM
+
+Set your NVIDIA API key as an environment variable:
+
+**Windows (Command Prompt):**
+```cmd
+set NVIDIA_API_KEY=nvapi-your-key-here
+```
+
+**Windows (PowerShell):**
+```powershell
+$env:NVIDIA_API_KEY="nvapi-your-key-here"
+```
+
+**macOS / Linux:**
+```bash
+export NVIDIA_API_KEY=nvapi-your-key-here
+```
+
+> The app works **without** this key — AI explanations will just show a notice instead.
+
+---
+
+## Common Issues & Fixes
+
+| Issue | Cause | Fix |
+|---|---|---|
+| `model.pkl` is only ~130 bytes | Git LFS not installed or not pulled | Install Git LFS, run `git lfs install`, then `git lfs pull` |
+| `ModuleNotFoundError: No module named 'fastapi'` | Python deps not installed | Run `pip install -r backend/requirements.txt` |
+| `ModuleNotFoundError: No module named 'streamlit'` | Streamlit deps not installed | Run `pip install -r requirements.txt` |
+| `OSError: [Errno 22] Invalid argument` on Windows path | Path too long or special chars | Clone to a short path like `C:\projects\` |
+| `Error loading resources` in Streamlit app | .pkl files missing or corrupt | Re-run `git lfs pull` from repo root |
+| Port 8000 already in use | Another app using that port | Change port: `python -m uvicorn main:app --reload --port 8001` |
+| `npm ERR!` during install | Node.js version too old | Run `node --version`, upgrade to >= 18.17.0 |
 
 ---
 
 ## Project Structure
 
 ```
-backend/
-  main.py                          FastAPI server with prediction endpoints
-  requirements.txt                 Python dependencies
-  random_forest_dropout_model.pkl  Trained Random Forest model
-  scaler.pkl                       Fitted StandardScaler
-  feature_names.pkl                Feature names list
-src/
-  app/
-    page.tsx                       Landing page
-    layout.tsx                     Root layout with metadata
-    globals.css                    Global styles and Tailwind imports
-    predict/page.tsx               Single prediction page with smart/manual input
-    batch/page.tsx                 Batch CSV processing page
-    analytics/page.tsx             Model analytics dashboard
-  components/
-    Navbar.tsx                     Top navigation bar
-    RiskCard.tsx                   Prediction result card
-    MetricCard.tsx                 Stat display card
-    GaugeChart.tsx                 Probability gauge visualization
-    ShapWaterfall.tsx              SHAP waterfall bar chart
-    RiskDistributionPie.tsx        Risk level distribution pie chart
-    ProbabilityHistogram.tsx       Probability distribution histogram
-    FeatureImportance.tsx          Global feature importance chart
-    EmptyState.tsx                 Empty state placeholder
-  lib/
-    api.ts                         API client functions
-    types.ts                       TypeScript types and helper functions
-public/
-    sample_data.csv                Sample CSV for batch upload
-next.config.js                     Next.js configuration with API rewrites
-package.json                       Node.js dependencies and scripts
+root/
+  backend/
+    main.py                    FastAPI server
+    requirements.txt           Python deps (backend)
+    *.pkl                      ML model files (LFS-tracked)
+  dropout_prediction_app.py    Standalone Streamlit app (no Node.js needed)
+  requirements.txt             Python deps (standalone app)
+  .gitattributes               LFS config (MUST be intact)
+  src/                         Next.js frontend
+  package.json                 Node.js deps & scripts
+  public/sample_data.csv       Sample CSV for batch upload
 ```
 
 ---
 
-## API Endpoints
+## API Endpoints (Web App Backend)
 
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/api/health` | Health check |
-| POST | `/api/predict` | Single prediction (accepts `{ features: [15 floats] }`) |
-| POST | `/api/predict/batch` | Batch prediction via CSV file upload |
-| GET | `/api/analytics` | Model metrics, feature importance, and config |
-
-In development, the frontend proxies `/api/*` requests to `localhost:8000/api/*` via Next.js rewrites (configured in `next.config.js`).
+| POST | `/api/predict` | Single prediction `{ "features": [15 floats] }` |
+| POST | `/api/predict/batch` | Batch prediction via CSV upload |
+| GET | `/api/analytics` | Model metrics & feature importance |
 
 ---
 
@@ -178,25 +224,15 @@ In development, the frontend proxies `/api/*` requests to `localhost:8000/api/*`
 | Algorithm | Random Forest |
 | Trees | 300 |
 | Max Depth | 10 |
-| Class Weight | Balanced |
-| Total Samples | 4,424 |
-| Training Set | 3,318 (75%) |
-| Test Set | 1,106 (25%) |
-| Features | 15 |
 | Accuracy | 88.43% |
 | ROC-AUC | 93.43% |
+| Features | 15 |
+| Training Samples | 3,318 |
 
-The model was trained on the Open University Learning Analytics Dataset (OULAD). It uses 15 features spanning academic performance, demographics, financial indicators, and behavioral patterns.
-
----
-
-## Engineered Features
-
-- **grade_delta** — Change in average grade between semester 1 and 2 (positive = improving).
-- **approved_delta** — Change in number of approved courses between semesters.
-- **efficiency_change** — Change in approval rate (approved/enrolled) between semesters.
-- **financial_stress_index** — Composite score from debt status, tuition payment, and scholarship status.
-- **age_group** — Categorical age buckets (17-20, 21-25, 26+).
+Trained on the Open University Learning Analytics Dataset (OULAD).
 
 ---
 
+## License
+
+Educational project — submitted for hackathon evaluation.
