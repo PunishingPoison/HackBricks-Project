@@ -236,6 +236,3 @@ Trained on the Open University Learning Analytics Dataset (OULAD).
 
 ---
 
-## License
-
-Educational project — submitted for hackathon evaluation.
